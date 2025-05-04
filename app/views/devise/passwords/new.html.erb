@@ -1,0 +1,29 @@
+<div class="min-h-screen flex items-center justify-center bg-[#0d1117] px-4">
+  <div class="bg-transparent backdrop-blur-2xl backdrop-brightness-150 text-white rounded-xl shadow-lg w-full max-w-2xl p-8 md:p-12">
+    
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h2 class="text-3xl font-bold mb-2">Forgot your password?</h2>
+      <p class="text-sm text-gray-400">Enter your email and we'll send you instructions to reset your password.</p>
+    </div>
+
+    <!-- Form -->
+    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "space-y-6" }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <div>
+        <%= f.label :email, class: "block text-sm mb-1" %>
+        <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "w-full px-4 py-2 bg-gray-800 text-white border border-gray-700 rounded" %>
+      </div>
+
+      <div>
+        <%= f.submit "Send reset instructions", class: "w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 rounded" %>
+      </div>
+    <% end %>
+
+    <!-- Links -->
+    <div class="text-center mt-6 text-sm text-gray-400">
+      <%= link_to "Back to Sign In", new_session_path(resource_name), class: "hover:text-white" %>
+    </div>
+  </div>
+</div>
