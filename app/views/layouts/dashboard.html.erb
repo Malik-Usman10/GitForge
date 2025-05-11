@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Git Forge" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= favicon_link_tag 'favicon/favicon.ico' %>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+     <script>
+    // JavaScript for mobile sidebar toggle
+    document.addEventListener('DOMContentLoaded', function() {
+      const mobileMenuButton = document.querySelector('button.md\\:hidden');
+      const mobileSidebar = document.getElementById('mobile-sidebar-overlay');
+      const closeMobileSidebar = document.getElementById('close-mobile-sidebar');
+      
+      if (mobileMenuButton && mobileSidebar && closeMobileSidebar) {
+        mobileMenuButton.addEventListener('click', function() {
+          mobileSidebar.classList.toggle('hidden');
+        });
+        
+        closeMobileSidebar.addEventListener('click', function() {
+          mobileSidebar.classList.add('hidden');
+        });
+      }
+    });
+  </script>
+  </head>
+
+  <body class="bg-gray-100 text-gray-900">
+    <%= render "dashboard/partials/header" %>
+
+    <div class="flex min-h-screen">
+      <%= render "dashboard/partials/sidebar" %>
+
+      <main class="flex-1">
+        <%= yield %>
+      </main>
+    </div>
+
+    <%= render "dashboard/partials/footer" %>
+  </body>
+</html>
