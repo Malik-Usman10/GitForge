@@ -77,3 +77,7 @@ rails credentials:edit # Add Google OAuth credentials
 - [ ] User Profiles
 
 - [ ] API integration for git actions
+
+---
+
+Made with ❤️ by **Team Habibis**

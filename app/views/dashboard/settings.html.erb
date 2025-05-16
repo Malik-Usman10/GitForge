@@ -1,1 +1,123 @@
-<h1>Setting Page</h1>
+<!-- Main content container with scrolling -->
+<div class="flex h-screen bg-gray-950 text-white">
+  <!-- Main content area - scrollable -->
+  <div class="flex-1 overflow-y-auto p-8">
+    <h1 class="text-3xl font-bold mb-8">Settings</h1>
+    
+    <!-- Grid container for cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Profile Settings Card -->
+      <div class="bg-gray-900 rounded-lg p-6">
+        <h2 class="text-xl font-bold mb-4">Profile Settings</h2>
+        
+        <div class="flex items-center mb-6">
+          <div class="relative mr-4">
+            <img src="/api/placeholder/80/80" alt="Profile" class="w-16 h-16 rounded-full bg-gray-800" />
+          </div>
+          <div>
+            <button class="text-yellow-500 mb-1 hover:underline">Change</button>
+            <p class="text-gray-400">Abex<span class="text-yellow-500">example</span></p>
+          </div>
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-gray-300 mb-2">Name</label>
+          <input type="text" value="E>say example" class="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white">
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-gray-300 mb-2">Bio</label>
+          <input type="text" value="Email/scorse enthusisast" class="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white">
+        </div>
+        
+        <button class="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-6 rounded">
+          Save
+        </button>
+      </div>
+      
+     
+      <!-- Security Card -->
+      <div class="bg-gray-900 rounded-lg p-6">
+        <h2 class="text-xl font-bold mb-4">Security</h2>
+        
+        <div class="mb-4">
+          <label class="block text-gray-300 mb-2">Current password</label>
+          <input type="password" class="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white">
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-gray-300 mb-2">New password</label>
+          <input type="password" class="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white">
+        </div>
+        
+        <div class="mb-6">
+          <label class="block text-gray-300 mb-2">Confirm new password</label>
+          <input type="password" class="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white">
+        </div>
+        
+        <div class="flex justify-between items-center">
+          <span>Two-factor authentication</span>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" checked class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-700 peer-checked:bg-yellow-500 rounded-full peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+          </label>
+        </div>
+      </div>
+      
+      <!-- SSH Keys Card -->
+      <div class="bg-gray-900 rounded-lg p-6">
+        <h2 class="text-xl font-bold mb-4">SSH Keys</h2>
+        
+        <div class="mb-4">
+          <div class="flex justify-between items-center py-3 border-b border-gray-800">
+            <span>Name</span>
+            <span>Key</span>
+          </div>
+          
+          <div class="flex justify-between items-center py-3 border-b border-gray-800">
+            <span>laptop-key</span>
+            <div class="flex items-center">
+              <span class="text-gray-400 mr-2">ssh-rsa AAAAaak···</span>
+              <button class="text-gray-400 hover:text-white">
+                Ac
+              </button>
+            </div>
+          </div>
+          
+          <div class="flex justify-between items-center py-3">
+            <span>work-key</span>
+            <div class="flex items-center">
+              <span class="text-gray-400 mr-2">ssh-esc6576 AAAA···</span>
+              <button class="text-gray-400 hover:text-white">
+                Ac
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <button class="bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded w-full">
+          Add key
+        </button>
+      </div>
+      
+      <!-- Billing Card -->
+      <div class="bg-gray-900 rounded-lg p-6">
+        <h2 class="text-xl font-bold mb-4">Billing</h2>
+        
+        <div class="flex justify-between items-center mb-4">
+          <span>Current Plan</span>
+          <span class="font-medium">Pro</span>
+        </div>
+        
+        <div class="flex justify-between items-center">
+          <span>Payment Method</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Copyright info -->
+    <div class="text-gray-500 text-sm text-right pt-4 pb-8">
+      © 2025 GitForge. All rights reserved.
+    </div>
+  </div>
+</div>
