@@ -1,9 +1,52 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+# Clear existing records
+PullRequest.delete_all
+Issue.delete_all
+Repository.delete_all
+User.delete_all
+
+puts "🧹 Cleared existing records..."
+
+# Create a sample user
+user = User.create!(
+  username: 'johnsmith1',
+  real_name: 'John Smith',
+  email: 'john1@example.com',
+  password: 'password',
+  bio: 'Ruby developer and open-source contributor.'
+)
+
+puts "✅ Created user: #{user.username}"
+
+# Create a sample repository
+repo = user.repositories.create!(
+  name: 'awesome-repoTwo',
+  description: 'My Second GitForge repo',
+  language: 'JavaScript',
+  visibility: :is_private
+)
+
+puts "📁 Created repository: #{repo.name}"
+
+# # Create a sample issue
+# issue = repo.issues.create!(
+#   title: 'Fix UI bug',
+#   description: 'Navbar issue on mobile view',
+#   status: :open,
+#   user: user
+# )
+
+# puts "🐞 Created issue: #{issue.title}"
+
+# # Create a sample pull request
+# pr = repo.pull_requests.create!(
+#   title: 'Add dark mode support',
+#   description: 'Implemented dark mode toggle in navbar',
+#   status: :open,
+#   source_branch: 'feature/dark-mode',
+#   target_branch: 'main',
+#   user: user
+# )
+
+# puts "🚀 Created pull request: #{pr.title}"
+
+# puts "🎉 Seeding complete!"

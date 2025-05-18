@@ -62,12 +62,12 @@
       <div class="mb-8">
         <h2 class="text-xl font-semibold mb-4">Quick Actions</h2>
         <div class="flex flex-wrap gap-3">
-          <a href="#" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md flex items-center transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          <%= link_to new_repository_path, class: "px-4 py-2 bg-yellow-500 text-white rounded-md text-md font-medium hover:bg-yellow-600 flex items-center" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
             New Repository
-          </a>
+          <% end %>
           
           <a href="#" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md flex items-center transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
