@@ -12,7 +12,7 @@
               </svg>
             </div>
           </div>
-          <%= link_to new_dashboard_repository_path, class: "px-4 py-2 bg-yellow-600 text-white rounded-md text-sm font-medium hover:bg-yellow-700 flex items-center" do %>
+          <%= link_to new_repository_path, class: "px-4 py-2 bg-yellow-600 text-white rounded-md text-sm font-medium hover:bg-yellow-700 flex items-center" do %>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
@@ -25,11 +25,11 @@
     <!-- Repository Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
       <% @repositories.each do |repo| %>
-        <div class="bg-gray-800 rounded-lg p-5 hover:border hover:border-yellow-500 transition-all">
+        <div class="bg-gray-800 rounded-lg p-5 hover:border hover:border-yellow-500 transition-all cursor-pointer">
           <div class="flex justify-between items-start">
             <div>
               <h3 class="text-lg font-medium">
-                <%= link_to repo.name, dashboard_repository_path(repo), class: "text-yellow-500 hover:underline" %>
+                <%= link_to repo.name, user_repository_path(repo.user.username, repo.slug), class: "text-yellow-500 hover:underline" %>
               </h3>
               <p class="text-gray-400 text-sm mt-1"><%= repo.description.presence || "No description provided." %></p>
             </div>
@@ -47,13 +47,6 @@
                 <%= repo.language %>
               </span>
             <% end %>
-
-            <span class="flex items-center mr-4">
-              ⭐ <%= repo.stars_count || 0 %>
-            </span>
-            <span class="flex items-center">
-              🍴 <%= repo.forks_count || 0 %>
-            </span>
           </div>
 
           <div class="mt-4 text-xs text-gray-500">

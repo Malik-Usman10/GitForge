@@ -1,4 +1,7 @@
 class User < ApplicationRecord
+  extend FriendlyId
+  friendly_id :username, use: :slugged
+
   # Devise modules for authentication
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
@@ -17,6 +20,10 @@ class User < ApplicationRecord
 
   # Callback to generate username from email (optional)
   before_validation :generate_username, on: :create
+
+  def should_generate_new_friendly_id?
+    username_changed?
+  end
 
   private
 

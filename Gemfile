@@ -65,3 +65,4 @@ gem "devise"
 
 gem "friendly_id"
 
+gem "redcarpet"
