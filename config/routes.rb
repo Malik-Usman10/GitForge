@@ -17,7 +17,11 @@ Rails.application.routes.draw do
 
     # Routes for repositories under username
     get '/:username/repositories', to: 'repositories#index', as: 'user_repositories'
-    resources :repositories, except: [:index, :show]
+    resources :repositories, except: [:index, :show] do
+      member do
+        post :sync
+      end
+    end
   end
 
   unauthenticated do
