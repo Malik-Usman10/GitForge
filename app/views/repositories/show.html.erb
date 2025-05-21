@@ -1,67 +1,95 @@
 <!-- Repository Page Main Content Section -->
-<div class="min-h-screen bg-gray-950 text-white">
-  <!-- Repository Header -->
-  <div class="border-b border-gray-800 bg-gray-900">
+<div class="h-screen flex flex-col bg-gray-950 text-white">
+  <!-- Repository Header - Fixed -->
+  <div class="flex-none border-b border-gray-800 bg-gray-900">
     <div class="container mx-auto px-4 py-4">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-2xl font-bold">
+          <h1 class="text-3xl font-bold">
             <%= link_to @user.username, user_path(@user.username), class: "text-gray-400 hover:text-white" %> /
             <span class="text-white"><%= @repository.name %></span>
           </h1>
-          <p class="text-gray-400 mt-1"><%= @repository.description %></p>
+          <p class="text-gray-400 mt-2 text-lg"><%= @repository.description %></p>
         </div>
         <% if current_user == @user %>
           <div class="flex space-x-4">
-            <%= link_to "Edit", edit_repository_path(@repository), class: "px-4 py-2 border border-gray-700 rounded-md hover:bg-gray-800" %>
-            <%= button_to "Sync", sync_repository_path(@repository), method: :post, class: "px-4 py-2 bg-yellow-500 text-black rounded-md hover:bg-yellow-600" %>
+            <%= button_to "Sync", sync_repository_path(@repository),
+                          method: :post,
+                          class: "px-6 py-2 bg-yellow-500 text-black rounded-md hover:bg-yellow-600 transition-colors" %>
+            <%= button_to "Delete", repository_path(@repository),
+                          method: :delete,
+                          class: "px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors",
+                          data: {
+                            turbo_confirm: "Are you sure you want to delete this repository? This action cannot be undone.",
+                          } %>
           </div>
         <% end %>
       </div>
     </div>
   </div>
 
-  <!-- Main Content -->
-  <div class="container mx-auto px-4 py-8">
-    <div class="grid grid-cols-12 gap-8">
+  <!-- Main Content - Scrollable -->
+  <div class="flex-1 overflow-y-auto custom-scrollbar">
+    <div class="container mx-auto px-4 py-8">
       <!-- File Browser -->
-      <div class="col-span-3">
+      <div class="mb-8">
         <div class="bg-gray-900 rounded-lg border border-gray-800">
           <div class="p-4 border-b border-gray-800">
-            <h2 class="font-semibold">Files</h2>
+            <h2 class="text-xl font-semibold">Files</h2>
           </div>
-          <div class="p-4">
-            <%= render partial: "file_tree", collection: @files, as: :file %>
+          <div class="p-4 max-h-[500px] overflow-y-auto custom-scrollbar">
+            <% # Sort files to show directories first, then files %>
+            <% sorted_files = @files.sort_by { |f| [f.is_directory ? 0 : 1, f.name.downcase] } %>
+            <%= render partial: "file_tree", collection: sorted_files, as: :file %>
           </div>
         </div>
       </div>
 
       <!-- README Preview -->
-      <div class="col-span-9">
-        <div class="bg-gray-900 rounded-lg border border-gray-800">
-          <div class="p-4 border-b border-gray-800">
-            <h2 class="font-semibold">
-              <%= @readme ? @readme.name : "# #{@repository.name}" %>
-            </h2>
-          </div>
-          <div class="p-4 prose prose-invert max-w-none">
-            <% if @readme %>
-              <% if @readme.content.present? %>
-                <%= markdown(@readme.content) %>
-              <% else %>
-                <div class="text-gray-400">
-                  <p>Unable to load README content. The file might be empty or there might be an issue accessing it.</p>
-                </div>
-              <% end %>
+      <div class="bg-gray-900 rounded-lg border border-gray-800">
+        <div class="p-4 border-b border-gray-800">
+          <h2 class="text-xl font-semibold">
+            <%= @readme ? @readme.name : "# #{@repository.name}" %>
+          </h2>
+        </div>
+        <div class="p-6 prose prose-invert max-w-none">
+          <% if @readme %>
+            <% if @readme.content.present? %>
+              <%= markdown(@readme.content) %>
             <% else %>
               <div class="text-gray-400">
-                <h1><%= @repository.name %></h1>
-                <p>No README.md found. Add a README.md file to your repository to provide information about your project.</p>
+                <p>Unable to load README content. The file might be empty or there might be an issue accessing it.</p>
               </div>
             <% end %>
-          </div>
+          <% else %>
+            <div class="text-gray-400">
+              <h1 class="text-3xl font-bold mb-4"><%= @repository.name %></h1>
+              <p class="text-lg">No README.md found. Add a README.md file to your repository to provide information about your project.</p>
+            </div>
+          <% end %>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<% # Add custom scrollbar styles %>
+<style>
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #1f2937;
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #4b5563;
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+  }
+</style>

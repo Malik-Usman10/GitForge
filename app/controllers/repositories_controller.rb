@@ -6,6 +6,14 @@ class RepositoriesController < ApplicationController
     before_action :authenticate_owner!, only: [:edit, :update, :destroy, :sync]
     layout :determine_layout
   
+    rescue_from ActiveRecord::RecordNotFound do |exception|
+      if exception.model == "Repository"
+        redirect_to repositories_path, alert: "Repository not found."
+      else
+        redirect_to root_path, alert: "Resource not found."
+      end
+    end
+
     def index
       @repositories = current_user.repositories.order(updated_at: :desc)
     end
@@ -16,13 +24,31 @@ class RepositoriesController < ApplicationController
         return
       end
 
-      @files = @repository.root_files.includes(:children)
-      @readme = @repository.readme
+      # Load all files with their children in a single query
+      @files = @repository.repository_files
+        .includes(children: { children: { children: { children: :children } } })
+        .where(parent_id: nil)
+        .order(:name)
       
-      Rails.logger.debug "Repository files count: #{@repository.repository_files.count}"
+      # Debug information
+      Rails.logger.debug "=== Repository Files Debug ==="
+      Rails.logger.debug "Total files in repository: #{@repository.repository_files.count}"
       Rails.logger.debug "Root files count: #{@files.count}"
-      Rails.logger.debug "README found: #{@readme.present?}"
-      Rails.logger.debug "README content: #{@readme&.content}" if @readme
+      @files.each do |file|
+        Rails.logger.debug "Root file: #{file.name} (#{file.is_directory ? 'directory' : 'file'})"
+        if file.is_directory
+          Rails.logger.debug "  Children count: #{file.children.count}"
+          file.children.each do |child|
+            Rails.logger.debug "    Child: #{child.name} (#{child.is_directory ? 'directory' : 'file'})"
+            if child.is_directory
+              Rails.logger.debug "      Grandchildren count: #{child.children.count}"
+            end
+          end
+        end
+      end
+      Rails.logger.debug "==========================="
+
+      @readme = @repository.readme
     end
   
     def new
@@ -52,8 +78,27 @@ class RepositoriesController < ApplicationController
     end
   
     def destroy
-      @repository.destroy
-      redirect_to repositories_path, notice: "Repository deleted."
+      begin
+        # Store the username before destroying the repository
+        username = @repository.user.username
+        
+        # Delete the git repository directory
+        FileUtils.rm_rf(@repository.git_path) if Dir.exist?(@repository.git_path)
+        
+        # Destroy the repository record
+        @repository.destroy
+        
+        # Redirect to user's repositories page
+        redirect_to user_repositories_path(username: username), notice: "Repository deleted successfully."
+      rescue => e
+        Rails.logger.error "Error deleting repository: #{e.message}"
+        # On error, still try to redirect to user's repositories if we have the username
+        if username.present?
+          redirect_to user_repositories_path(username: username), alert: "Failed to delete repository. Please try again."
+        else
+          redirect_to repositories_path, alert: "Failed to delete repository. Please try again."
+        end
+      end
     end
 
     def sync
@@ -79,18 +124,34 @@ class RepositoriesController < ApplicationController
     end
   
     def set_user_and_repository
-      @user = User.find_by!(username: params[:username])
-      @repository = @user.repositories.friendly.find(params[:repository_name])
+      begin
+        @user = User.find_by!(username: params[:username])
+        @repository = @user.repositories.friendly.find(params[:repository_name])
+      rescue ActiveRecord::RecordNotFound => e
+        if e.model == "User"
+          redirect_to root_path, alert: "User not found."
+        else
+          redirect_to repositories_path, alert: "Repository not found."
+        end
+      end
     end
   
     def set_repository
-      if params[:id].present?
-        @repository = current_user.repositories.friendly.find(params[:id])
-      elsif params[:repository_name].present? && params[:username].present?
-        @user = User.find_by!(username: params[:username])
-        @repository = @user.repositories.friendly.find(params[:repository_name])
-      else
-        @repository = nil
+      begin
+        if params[:id].present?
+          @repository = current_user.repositories.friendly.find(params[:id])
+        elsif params[:repository_name].present? && params[:username].present?
+          @user = User.find_by!(username: params[:username])
+          @repository = @user.repositories.friendly.find(params[:repository_name])
+        else
+          @repository = nil
+        end
+      rescue ActiveRecord::RecordNotFound => e
+        if e.model == "User"
+          redirect_to root_path, alert: "User not found."
+        else
+          redirect_to repositories_path, alert: "Repository not found."
+        end
       end
     end
   

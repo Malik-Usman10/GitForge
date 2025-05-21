@@ -1,25 +1,30 @@
 <div class="file-tree" data-controller="file-tree">
-  <div class="flex items-center py-1 hover:bg-gray-800 rounded px-2">
+  <div class="flex items-center py-2 hover:bg-gray-800 rounded px-3">
     <% if file.is_directory %>
-      <button class="expand-button mr-1 text-gray-400 hover:text-yellow-500 transition-transform duration-200" data-action="click->file-tree#toggle">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <button class="expand-button mr-2 text-gray-400 hover:text-yellow-500 transition-transform duration-200" data-action="click->file-tree#toggle">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
         </svg>
       </button>
-      <svg class="w-4 h-4 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="w-5 h-5 mr-3 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
       </svg>
+      <span class="text-base font-semibold"><%= file.name %></span>
     <% else %>
-      <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-      </svg>
+      <button class="file-button flex items-center" data-action="click->repository#handleFileSelection" data-file-name="<%= file.path %>">
+        <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+        <span class="text-base"><%= file.name %></span>
+      </button>
     <% end %>
-    <span class="text-sm"><%= file.name %></span>
   </div>
   
   <% if file.is_directory && file.children.any? %>
-    <div class="ml-4 hidden" data-file-tree-target="content">
-      <%= render partial: "file_tree", collection: file.children, as: :file %>
+    <div class="ml-6 hidden" data-file-tree-target="content">
+      <% # Sort children to show directories first, then files %>
+      <% sorted_children = file.children.sort_by { |f| [f.is_directory ? 0 : 1, f.name.downcase] } %>
+      <%= render partial: "file_tree", collection: sorted_children, as: :file %>
     </div>
   <% end %>
 </div> 
