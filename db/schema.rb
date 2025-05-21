@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_18_014539) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_20_211943) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -77,9 +77,26 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_18_014539) do
     t.string "language"
     t.integer "stars_count", default: 0, null: false
     t.integer "forks_count", default: 0, null: false
+    t.boolean "is_private", default: false, null: false
     t.index ["forks_count"], name: "index_repositories_on_forks_count"
     t.index ["stars_count"], name: "index_repositories_on_stars_count"
     t.index ["user_id"], name: "index_repositories_on_user_id"
+  end
+
+  create_table "repository_files", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "content"
+    t.string "path", null: false
+    t.string "file_type", null: false
+    t.boolean "is_directory", default: false
+    t.bigint "repository_id", null: false
+    t.bigint "parent_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["parent_id"], name: "index_repository_files_on_parent_id"
+    t.index ["repository_id", "parent_id", "name"], name: "index_repository_files_on_repository_id_and_parent_id_and_name", unique: true
+    t.index ["repository_id", "path"], name: "index_repository_files_on_repository_id_and_path", unique: true
+    t.index ["repository_id"], name: "index_repository_files_on_repository_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -109,4 +126,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_18_014539) do
   add_foreign_key "pull_requests", "repositories"
   add_foreign_key "pull_requests", "users"
   add_foreign_key "repositories", "users"
+  add_foreign_key "repository_files", "repositories"
+  add_foreign_key "repository_files", "repository_files", column: "parent_id"
 end

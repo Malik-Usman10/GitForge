@@ -1,78 +1,95 @@
 <!-- Repository Page Main Content Section -->
-<div class="min-h-screen bg-gray-900 text-gray-300">
-  <div class="flex-1 px-4 sm:px-6 lg:px-8">
-    
-    <!-- Breadcrumb Navigation -->
-    <div class="py-4 flex items-center text-sm">
-      <div class="flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4l2 2h4a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" />
-        </svg>
-        <%= link_to @repository.user.username, user_path(@repository.user.username), class: "hover:underline font-medium" %>
-        <span class="mx-1">/</span>
-        <a href="#" class="font-medium hover:text-yellow-500"><%= @repository.name %></a>
-      </div>
-    </div>
-
-    <!-- Top Menu (Previously Sidebar Items) -->
-    <div class="flex space-x-6 text-sm pb-4 border-b border-gray-700 mb-6">
-      <a href="#" class="hover:text-yellow-500 flex items-center">
-        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2"
-          viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0..." />
-        </svg>
-        Settings
-      </a>
-      <a href="#" class="hover:text-yellow-500 flex items-center">
-        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2"
-          viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M12 4.354a4 4 0 110 5.292..." />
-        </svg>
-        Contributors
-      </a>
-      <a href="#" class="hover:text-yellow-500 flex items-center">
-        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2"
-          viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M7 7h.01M7 3h5c..." />
-        </svg>
-        Releases
-      </a>
-      <a href="#" class="hover:text-yellow-500 flex items-center">
-        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2"
-          viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M9 12h6m-6 4h6..." />
-        </svg>
-        Wiki
-      </a>
-    </div>
-
-    <!-- Main Content -->
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 py-4">
-
-      <!-- Right Content Area (File list stays) -->
-      <div class="lg:col-span-4">
-        <!-- File Browser Section (unchanged) -->
-        <!-- ... Your file/folder list HTML remains intact here ... -->
-
-        <!-- README.md Preview Section -->
-        <% if @readme_content.present? %>
-          <div class="bg-gray-800 rounded-lg p-6 mt-6">
-            <h2 class="text-xl font-semibold mb-4 text-yellow-500">README.md</h2>
-            <div class="prose prose-invert max-w-none">
-              <%= markdown(@readme_content) %>
-            </div>
-          </div>
-        <% else %>
-          <div class="bg-gray-800 rounded-lg p-6 mt-6 text-gray-400">
-            <p>No README.md found in the repository.</p>
+<div class="h-screen flex flex-col bg-gray-950 text-white">
+  <!-- Repository Header - Fixed -->
+  <div class="flex-none border-b border-gray-800 bg-gray-900">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold">
+            <%= link_to @user.username, user_path(@user.username), class: "text-gray-400 hover:text-white" %> /
+            <span class="text-white"><%= @repository.name %></span>
+          </h1>
+          <p class="text-gray-400 mt-2 text-lg"><%= @repository.description %></p>
+        </div>
+        <% if current_user == @user %>
+          <div class="flex space-x-4">
+            <%= button_to "Sync", sync_repository_path(@repository),
+                          method: :post,
+                          class: "px-6 py-2 bg-yellow-500 text-black rounded-md hover:bg-yellow-600 transition-colors" %>
+            <%= button_to "Delete", repository_path(@repository),
+                          method: :delete,
+                          class: "px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors",
+                          data: {
+                            turbo_confirm: "Are you sure you want to delete this repository? This action cannot be undone.",
+                          } %>
           </div>
         <% end %>
       </div>
+    </div>
+  </div>
 
+  <!-- Main Content - Scrollable -->
+  <div class="flex-1 overflow-y-auto custom-scrollbar">
+    <div class="container mx-auto px-4 py-8">
+      <!-- File Browser -->
+      <div class="mb-8">
+        <div class="bg-gray-900 rounded-lg border border-gray-800">
+          <div class="p-4 border-b border-gray-800">
+            <h2 class="text-xl font-semibold">Files</h2>
+          </div>
+          <div class="p-4 max-h-[500px] overflow-y-auto custom-scrollbar">
+            <% # Sort files to show directories first, then files %>
+            <% sorted_files = @files.sort_by { |f| [f.is_directory ? 0 : 1, f.name.downcase] } %>
+            <%= render partial: "file_tree", collection: sorted_files, as: :file %>
+          </div>
+        </div>
+      </div>
+
+      <!-- README Preview -->
+      <div class="bg-gray-900 rounded-lg border border-gray-800">
+        <div class="p-4 border-b border-gray-800">
+          <h2 class="text-xl font-semibold">
+            <%= @readme ? @readme.name : "# #{@repository.name}" %>
+          </h2>
+        </div>
+        <div class="p-6 prose prose-invert max-w-none">
+          <% if @readme %>
+            <% if @readme.content.present? %>
+              <%= markdown(@readme.content) %>
+            <% else %>
+              <div class="text-gray-400">
+                <p>Unable to load README content. The file might be empty or there might be an issue accessing it.</p>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="text-gray-400">
+              <h1 class="text-3xl font-bold mb-4"><%= @repository.name %></h1>
+              <p class="text-lg">No README.md found. Add a README.md file to your repository to provide information about your project.</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
     </div>
   </div>
 </div>
+
+<% # Add custom scrollbar styles %>
+<style>
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #1f2937;
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #4b5563;
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+  }
+</style>
