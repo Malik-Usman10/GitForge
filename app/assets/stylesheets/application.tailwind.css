@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles */
+.dropdown-logout-button {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+}
+
+/* Avatar upload styles */
+.avatar-upload-container {
+  position: relative;
+  margin-right: 1rem;
+  cursor: pointer;
+}
+
+.avatar-upload-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 9999px;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.avatar-upload-container:hover .avatar-upload-overlay,
+.avatar-upload-container:focus .avatar-upload-overlay,
+.avatar-upload-container:active .avatar-upload-overlay {
+  opacity: 1;
+}
+
+/* Touch device support */
+@media (hover: none) {
+  .avatar-upload-overlay {
+    opacity: 0.7;
+  }
+} 

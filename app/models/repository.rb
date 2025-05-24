@@ -14,6 +14,8 @@ class Repository < ApplicationRecord
   validates :name, uniqueness: { scope: :user_id, message: "is already taken" }
   validates :slug, uniqueness: { scope: :user_id }
 
+  after_create :initialize_git_repo
+
   def should_generate_new_friendly_id?
     name_changed?
   end
@@ -47,5 +49,39 @@ class Repository < ApplicationRecord
     # This would be the URL to the repository on the site
     # For now, we'll just return a placeholder
     "/#{user.username}/#{slug}"
+  end
+  
+  def sync
+    GitSyncService.new(self).sync
+  end
+  
+  private
+  
+  def initialize_git_repo
+    # Create repository directory
+    repo_path = git_path
+    FileUtils.mkdir_p(File.dirname(repo_path))
+    
+    # Initialize bare Git repository
+    system("git init --bare #{repo_path}")
+    
+    # Install post-receive hook
+    install_git_hooks
+  end
+  
+  def install_git_hooks
+    hooks_dir = File.join(git_path, 'hooks')
+    FileUtils.mkdir_p(hooks_dir)
+    
+    # Copy post-receive hook
+    post_receive_template = Rails.root.join('lib', 'templates', 'hooks', 'post-receive')
+    post_receive_path = File.join(hooks_dir, 'post-receive')
+    
+    if File.exist?(post_receive_template)
+      FileUtils.cp(post_receive_template, post_receive_path)
+      FileUtils.chmod(0755, post_receive_path) # Make executable
+    else
+      Rails.logger.error "Post-receive hook template not found at #{post_receive_template}"
+    end
   end
 end

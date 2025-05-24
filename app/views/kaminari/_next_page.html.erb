@@ -1,0 +1,14 @@
+<%# Link to the "Next" page
+  - available local variables
+    url:           url to the next page
+    current_page:  a page object for the currently displayed page
+    total_pages:   total number of pages
+    per_page:      number of items to fetch per page
+    remote:        data-remote
+-%>
+<span class="next">
+  <%= link_to_unless current_page.last?, t('views.pagination.next').html_safe, url, 
+    rel: 'next', 
+    remote: remote, 
+    class: "px-3 py-1 rounded-md #{current_page.last? ? 'bg-gray-700 text-gray-400 cursor-not-allowed' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}" %>
+</span> 

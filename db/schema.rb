@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_24_135731) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_24_193244) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -62,6 +62,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_24_135731) do
     t.integer "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "close_reason"
     t.index ["repository_id"], name: "index_issues_on_repository_id"
     t.index ["user_id"], name: "index_issues_on_user_id"
   end

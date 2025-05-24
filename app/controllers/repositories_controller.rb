@@ -67,8 +67,6 @@ class RepositoriesController < ApplicationController
     def create
       @repository = current_user.repositories.new(repository_params)
       if @repository.save
-        # Initialize git repository
-        initialize_git_repo
         redirect_to main_app.user_repository_path(username: current_user.username, repository_name: @repository.slug), notice: "Repository created successfully."
       else
         render :new, status: :unprocessable_entity
@@ -190,12 +188,6 @@ class RepositoriesController < ApplicationController
       else
         'dashboard'
       end
-    end
-
-    def initialize_git_repo
-      repo_path = @repository.git_path
-      FileUtils.mkdir_p(File.dirname(repo_path))
-      system("git init --bare #{repo_path}")
     end
 end
   

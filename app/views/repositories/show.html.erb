@@ -11,19 +11,57 @@
           </h1>
           <p class="text-gray-400 mt-2 text-lg"><%= @repository.description %></p>
         </div>
-        <% if current_user == @user %>
-          <div class="flex space-x-4">
-            <%= button_to "Sync", sync_repository_path(@repository),
+        <div class="flex space-x-3">
+          <!-- Repository Issues Button -->
+          <%= link_to user_repository_issues_path(username: @user.username, repository_name: @repository.slug),
+                      class: "px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors flex items-center" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Issues
+          <% end %>
+          
+          <!-- Repository Commits Button -->
+          <%= link_to user_repository_commits_path(username: @user.username, repository_name: @repository.slug),
+                      class: "px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors flex items-center" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+            </svg>
+            Commits
+          <% end %>
+          
+          <!-- Repository Pull Requests Button -->
+          <%= link_to user_repository_pull_requests_path(username: @user.username, repository_name: @repository.slug),
+                      class: "px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors flex items-center" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+            </svg>
+            Pull Requests
+          <% end %>
+          
+          <% if current_user == @user %>
+            <%= button_to sync_repository_path(@repository),
                           method: :post,
-                          class: "px-6 py-2 bg-yellow-500 text-black rounded-md hover:bg-yellow-600 transition-colors" %>
-            <%= button_to "Delete", repository_path(@repository),
+                          class: "px-4 py-2 bg-yellow-500 text-black rounded-md hover:bg-yellow-600 transition-colors flex items-center" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Sync
+            <% end %>
+            
+            <%= button_to repository_path(@repository),
                           method: :delete,
-                          class: "px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors",
+                          class: "px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors flex items-center",
                           data: {
                             turbo_confirm: "Are you sure you want to delete this repository? This action cannot be undone.",
-                          } %>
-          </div>
-        <% end %>
+                          } do %>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Delete
+            <% end %>
+          <% end %>
+        </div>
       </div>
     </div>
   </div>
@@ -31,6 +69,34 @@
   <!-- Main Content - Scrollable -->
   <div class="flex-1 overflow-y-auto custom-scrollbar">
     <div class="container mx-auto px-4 py-8">
+      <% if @files.empty? && current_user == @user %>
+        <!-- Git Setup Instructions -->
+        <div class="mb-8 bg-gray-900 rounded-lg border border-gray-800">
+          <div class="p-4 border-b border-gray-800">
+            <h2 class="text-xl font-semibold">Quick setup - create a new repository on the command line</h2>
+          </div>
+          <div class="p-6">
+            <div class="bg-gray-800 p-4 rounded-md font-mono text-sm mb-6 overflow-x-auto">
+              <p class="mb-2">echo "# <%= @repository.name %>" >> README.md</p>
+              <p class="mb-2">git init</p>
+              <p class="mb-2">git add README.md</p>
+              <p class="mb-2">git commit -m "first commit"</p>
+              <p class="mb-2">git branch -M main</p>
+              <p>git remote add origin file://<%= Rails.root.join("repos", @user.username, "#{@repository.slug}.git") %></p>
+              <p>git push -u origin main</p>
+            </div>
+            
+            <div class="border-t border-gray-700 pt-6 mt-6">
+              <h3 class="text-lg font-semibold mb-4">...or push an existing repository from the command line</h3>
+              <div class="bg-gray-800 p-4 rounded-md font-mono text-sm overflow-x-auto">
+                <p class="mb-2">git remote add origin file://<%= Rails.root.join("repos", @user.username, "#{@repository.slug}.git") %></p>
+                <p>git push -u origin main</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
       <!-- File Browser -->
       <div class="mb-8">
         <div class="bg-gray-900 rounded-lg border border-gray-800">
@@ -38,9 +104,18 @@
             <h2 class="text-xl font-semibold">Files</h2>
           </div>
           <div class="p-4 max-h-[500px] overflow-y-auto custom-scrollbar">
-            <% # Sort files to show directories first, then files %>
-            <% sorted_files = @files.sort_by { |f| [f.is_directory ? 0 : 1, f.name.downcase] } %>
-            <%= render partial: "file_tree", collection: sorted_files, as: :file %>
+            <% if @files.empty? %>
+              <div class="text-center text-gray-400 py-8">
+                <p>No files found in this repository.</p>
+                <% if current_user == @user %>
+                  <p class="mt-2">Use Git to push your code to get started.</p>
+                <% end %>
+              </div>
+            <% else %>
+              <% # Sort files to show directories first, then files %>
+              <% sorted_files = @files.sort_by { |f| [f.is_directory ? 0 : 1, f.name.downcase] } %>
+              <%= render partial: "file_tree", collection: sorted_files, as: :file %>
+            <% end %>
           </div>
         </div>
       </div>

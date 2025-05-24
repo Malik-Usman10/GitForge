@@ -68,3 +68,5 @@ gem "friendly_id"
 gem "redcarpet"
 
 gem "rugged"
+
+gem "kaminari"

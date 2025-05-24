@@ -2,7 +2,11 @@
   <div class="max-w-4xl mx-auto">
     <!-- Breadcrumb -->
     <div class="flex items-center text-sm text-gray-400 mb-4">
-      <%= link_to "Issues", issues_path, class: "hover:text-white" %>
+      <% if @repository %>
+        <%= link_to "Issues", user_repository_issues_path(username: @repository.user.username, repository_name: @repository.slug), class: "hover:text-white" %>
+      <% else %>
+        <%= link_to "Issues", issues_path, class: "hover:text-white" %>
+      <% end %>
       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
       </svg>
@@ -18,16 +22,16 @@
         </h1>
         <div class="flex space-x-2">
           <% if @issue.open? %>
-            <%= link_to close_issue_path(@issue), method: :patch, class: "bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium" do %>
+            <button type="button" data-action="click->modal#open" data-modal-target="closeIssueModal" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium">
               Close Issue
-            <% end %>
+            </button>
           <% else %>
-            <%= link_to reopen_issue_path(@issue), method: :patch, class: "bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium" do %>
+            <%= button_to reopen_user_repository_issue_path(username: @repository.user.username, repository_name: @repository.slug, id: @issue.id), method: :patch, class: "bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium" do %>
               Reopen Issue
             <% end %>
           <% end %>
           
-          <%= link_to edit_issue_path(@issue), class: "bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium" do %>
+          <%= link_to edit_user_repository_issue_path(username: @repository.user.username, repository_name: @repository.slug, id: @issue.id), class: "bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium" do %>
             Edit
           <% end %>
         </div>
@@ -55,7 +59,7 @@
       
       <div class="mt-2 text-sm">
         <span class="text-gray-400">Repository: </span>
-        <%= link_to @repository.name, main_app.user_repository_path(@repository.user.username, @repository.slug), class: "text-yellow-500 hover:underline" %>
+        <%= link_to @repository.name, user_repository_path(username: @repository.user.username, repository_name: @repository.slug), class: "text-yellow-500 hover:underline" %>
       </div>
     </div>
     
@@ -82,17 +86,36 @@
       </div>
     </div>
     
+    <% if @issue.closed? && @issue.close_reason.present? %>
+    <div class="bg-gray-800 border-t border-gray-700 p-6">
+      <div class="flex items-start space-x-3">
+        <div class="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </div>
+        
+        <div class="flex-1 bg-gray-700 rounded-lg p-4">
+          <h3 class="text-lg font-semibold text-red-400 mb-2">Closed</h3>
+          <div class="prose prose-invert max-w-none">
+            <%= simple_format @issue.close_reason %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <% end %>
+    
     <!-- Actions Footer -->
     <div class="bg-gray-800 rounded-b-lg border-t border-gray-700 p-6">
       <div class="flex justify-between">
-        <%= link_to issues_path, class: "text-gray-400 hover:text-white flex items-center" do %>
+        <%= link_to user_repository_issues_path(username: @repository.user.username, repository_name: @repository.slug), class: "text-gray-400 hover:text-white flex items-center" do %>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
           Back to Issues
         <% end %>
         
-        <%= link_to issue_path(@issue), method: :delete, data: { confirm: "Are you sure you want to delete this issue?" }, class: "text-red-500 hover:text-red-400 flex items-center" do %>
+        <%= button_to user_repository_issue_path(username: @repository.user.username, repository_name: @repository.slug, id: @issue.id), method: :delete, data: { turbo_confirm: "Are you sure you want to delete this issue?" }, class: "text-red-500 hover:text-red-400 flex items-center" do %>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
           </svg>
@@ -101,4 +124,74 @@
       </div>
     </div>
   </div>
-</div> 
+</div>
+
+<!-- Close Issue Modal -->
+<div id="closeIssueModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+  <div class="absolute inset-0 bg-black bg-opacity-50" id="modalBackdrop"></div>
+  <div class="bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-md mx-auto relative z-10">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-xl font-bold text-white">Close Issue</h3>
+      <button type="button" class="text-gray-400 hover:text-white" id="closeModalButton">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    
+    <%= form_with url: close_user_repository_issue_path(username: @repository.user.username, repository_name: @repository.slug, id: @issue.id), method: :patch, data: { turbo: false } do |f| %>
+      <div class="mb-4">
+        <%= f.label :close_reason, "Reason for closing", class: "block text-sm font-medium text-gray-300 mb-2" %>
+        <%= f.text_area :close_reason, name: "close_reason", rows: 4, class: "w-full bg-gray-700 border border-gray-600 rounded text-white p-2", placeholder: "Provide a reason for closing this issue..." %>
+      </div>
+      
+      <div class="flex justify-end space-x-3">
+        <button type="button" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded" id="cancelCloseButton">
+          Cancel
+        </button>
+        <%= f.submit "Close Issue", class: "px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('closeIssueModal');
+    const openButton = document.querySelector('[data-modal-target="closeIssueModal"]');
+    const closeButton = document.getElementById('closeModalButton');
+    const cancelButton = document.getElementById('cancelCloseButton');
+    const backdrop = document.getElementById('modalBackdrop');
+    
+    function openModal() {
+      if (modal) modal.classList.remove('hidden');
+    }
+    
+    function closeModal() {
+      if (modal) modal.classList.add('hidden');
+    }
+    
+    if (openButton) {
+      openButton.addEventListener('click', openModal);
+    }
+    
+    if (closeButton) {
+      closeButton.addEventListener('click', closeModal);
+    }
+    
+    if (cancelButton) {
+      cancelButton.addEventListener('click', closeModal);
+    }
+    
+    if (backdrop) {
+      backdrop.addEventListener('click', closeModal);
+    }
+    
+    // Close on escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+        closeModal();
+      }
+    });
+  });
+</script> 

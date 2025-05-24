@@ -18,6 +18,9 @@ class GitSyncService
       Rails.logger.debug "Repository path: #{@repo_path}"
       Rails.logger.debug "Head commit: #{head.oid}"
 
+      # Sync commits
+      sync_commits(repo)
+
       # Clear existing files
       @repository.repository_files.destroy_all
       Rails.logger.debug "Cleared existing files"
@@ -43,6 +46,49 @@ class GitSyncService
 
   def git_repo_exists?
     Dir.exist?(@repo_path)
+  end
+
+  def sync_commits(repo)
+    Rails.logger.debug "=== Syncing Commits ==="
+    
+    # Get existing commit SHAs
+    existing_shas = @repository.commits.pluck(:sha)
+    
+    # Get all branches
+    repo.branches.each do |branch|
+      # Walk through commits
+      walker = Rugged::Walker.new(repo)
+      walker.push(branch.target.oid)
+      
+      # Limit to 100 most recent commits to avoid huge syncs
+      count = 0
+      walker.each do |commit|
+        break if count >= 100
+        
+        # Skip if we already have this commit
+        next if existing_shas.include?(commit.oid)
+        
+        # Find the commit author in our system
+        author_email = commit.author[:email]
+        user = User.find_by(email: author_email)
+        
+        # Create the commit record
+        @repository.commits.create(
+          sha: commit.oid,
+          message: commit.message,
+          author_name: commit.author[:name],
+          author_email: commit.author[:email],
+          user: user,
+          committed_at: Time.at(commit.time.to_i),
+          created_at: Time.at(commit.time.to_i)
+        )
+        
+        count += 1
+        Rails.logger.debug "Synced commit: #{commit.oid[0..7]} - #{commit.message.lines.first.strip}"
+      end
+    end
+    
+    Rails.logger.debug "=== Commit Sync Complete ==="
   end
 
   def walk_tree(tree, path)

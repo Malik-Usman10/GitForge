@@ -6,7 +6,7 @@
       <!-- Stats Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <!-- Total Repositories -->
-        <div class="bg-gray-800 rounded-lg p-5 flex justify-between items-start">
+        <%= link_to user_repositories_path(current_user.username), class: "bg-gray-800 rounded-lg p-5 flex justify-between items-start hover:bg-gray-700 transition-colors cursor-pointer" do %>
           <div>
             <h3 class="text-gray-400 text-sm font-medium mb-1">Total Repositories</h3>
             <div class="text-3xl font-semibold"><%= @repository_count %></div>
@@ -16,46 +16,46 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
             </svg>
           </div>
-        </div>
+        <% end %>
         
         <!-- Open Issues -->
-        <div class="bg-gray-800 rounded-lg p-5 flex justify-between items-start">
+        <%= link_to user_issues_path(current_user.username), class: "bg-gray-800 rounded-lg p-5 flex justify-between items-start hover:bg-gray-700 transition-colors cursor-pointer" do %>
           <div>
             <h3 class="text-gray-400 text-sm font-medium mb-1">Open Issues</h3>
             <div class="text-3xl font-semibold"><%= @open_issues_count %></div>
           </div>
-          <%= link_to issues_path, class: "text-yellow-500" do %>
+          <div class="text-yellow-500">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-          <% end %>
-        </div>
+          </div>
+        <% end %>
         
         <!-- Pull Requests -->
-        <div class="bg-gray-800 rounded-lg p-5 flex justify-between items-start">
+        <%= link_to user_pull_requests_path(current_user.username), class: "bg-gray-800 rounded-lg p-5 flex justify-between items-start hover:bg-gray-700 transition-colors cursor-pointer" do %>
           <div>
             <h3 class="text-gray-400 text-sm font-medium mb-1">Pull Requests</h3>
             <div class="text-3xl font-semibold"><%= @pull_requests_count %></div>
           </div>
-          <%= link_to pull_requests_path, class: "text-blue-500" do %>
+          <div class="text-blue-500">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
             </svg>
-          <% end %>
-        </div>
+          </div>
+        <% end %>
         
         <!-- Recent Commits -->
-        <div class="bg-gray-800 rounded-lg p-5 flex justify-between items-start">
+        <%= link_to user_commits_path(current_user.username), class: "bg-gray-800 rounded-lg p-5 flex justify-between items-start hover:bg-gray-700 transition-colors cursor-pointer" do %>
           <div>
             <h3 class="text-gray-400 text-sm font-medium mb-1">Recent Commits</h3>
             <div class="text-3xl font-semibold"><%= @commits_count %></div>
           </div>
-          <%= link_to commits_path, class: "text-yellow-500" do %>
+          <div class="text-yellow-500">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-          <% end %>
-        </div>
+          </div>
+        <% end %>
       </div>
       
       <!-- Quick Actions -->
@@ -69,14 +69,14 @@
             New Repository
           <% end %>
           
-          <%= link_to new_issue_path, class: "bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md flex items-center transition" do %>
+          <%= link_to new_user_issue_path(current_user.username), class: "bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md flex items-center transition" do %>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
             New Issue
           <% end %>
           
-          <%= link_to new_pull_request_path, class: "bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md flex items-center transition" do %>
+          <%= link_to new_user_pull_request_path(current_user.username), class: "bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md flex items-center transition" do %>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
             </svg>
@@ -108,17 +108,17 @@
                         <%= link_to activity[:repository].name, main_app.user_repository_path(activity[:user].username, activity[:repository].slug), class: "text-yellow-500 hover:underline" %>
                       <% when 'issue' %>
                         <span class="font-medium"><%= activity[:user].username %></span> opened issue 
-                        <%= link_to "##{activity[:item].id}", issue_path(activity[:item]), class: "text-yellow-500 hover:underline" %>: 
+                        <%= link_to "##{activity[:item].id}", user_repository_issue_path(username: activity[:user].username, repository_name: activity[:repository].slug, id: activity[:item].id), class: "text-yellow-500 hover:underline" %>: 
                         <span class="font-medium">"<%= activity[:item].title %>"</span> in
                         <%= link_to activity[:repository].name, main_app.user_repository_path(activity[:user].username, activity[:repository].slug), class: "text-yellow-500 hover:underline" %>
                       <% when 'pull_request' %>
                         <span class="font-medium"><%= activity[:user].username %></span> opened pull request 
-                        <%= link_to "##{activity[:item].id}", pull_request_path(activity[:item]), class: "text-yellow-500 hover:underline" %>: 
+                        <%= link_to "##{activity[:item].id}", user_repository_pull_request_path(username: activity[:user].username, repository_name: activity[:repository].slug, id: activity[:item].id), class: "text-yellow-500 hover:underline" %>: 
                         <span class="font-medium">"<%= activity[:item].title %>"</span> in
                         <%= link_to activity[:repository].name, main_app.user_repository_path(activity[:user].username, activity[:repository].slug), class: "text-yellow-500 hover:underline" %>
                       <% when 'commit' %>
                         <span class="font-medium"><%= activity[:user].username %></span> committed 
-                        <%= link_to activity[:item].short_sha, commit_path(activity[:item]), class: "font-mono text-yellow-500 hover:underline" %>: 
+                        <%= link_to activity[:item].short_sha, user_repository_commit_path(username: activity[:user].username, repository_name: activity[:repository].slug, id: activity[:item].id), class: "font-mono text-yellow-500 hover:underline" %>: 
                         <span class="font-medium"><%= activity[:item].message.split("\n").first %></span> in
                         <%= link_to activity[:repository].name, main_app.user_repository_path(activity[:user].username, activity[:repository].slug), class: "text-yellow-500 hover:underline" %>
                       <% end %>

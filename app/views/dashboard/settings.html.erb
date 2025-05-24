@@ -4,35 +4,85 @@
   <div class="flex-1 overflow-y-auto p-8">
     <h1 class="text-3xl font-bold mb-8">Settings</h1>
     
+    <% if notice %>
+      <div class="bg-green-900 text-green-100 p-4 rounded-md mb-6">
+        <%= notice %>
+      </div>
+    <% end %>
+
+    <% if current_user.errors.any? %>
+      <div class="bg-red-900 text-red-100 p-4 rounded-md mb-6">
+        <h2 class="font-bold mb-2">Error updating settings:</h2>
+        <ul class="list-disc pl-5">
+          <% current_user.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+    
     <!-- Grid container for cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Profile Settings Card -->
       <div class="bg-gray-900 rounded-lg p-6">
         <h2 class="text-xl font-bold mb-4">Profile Settings</h2>
         
-        <div class="flex items-center mb-6">
-          <div class="relative mr-4">
-            <img src="/api/placeholder/80/80" alt="Profile" class="w-16 h-16 rounded-full bg-gray-800" />
+        <%= form_with model: current_user, url: update_profile_path, method: :patch, multipart: true do |f| %>
+          <div class="flex items-center mb-6">
+            <div class="avatar-upload-container">
+              <% if current_user.avatar.attached? %>
+                <div id="avatar-preview" class="w-16 h-16 rounded-full bg-gray-800 overflow-hidden">
+                  <%= image_tag current_user.avatar, alt: "Profile", class: "w-full h-full object-cover" %>
+                </div>
+              <% else %>
+                <div id="avatar-preview" class="w-16 h-16 rounded-full bg-yellow-500 flex items-center justify-center">
+                  <span class="text-gray-900 font-bold"><%= current_user.username[0].upcase %></span>
+                </div>
+              <% end %>
+              
+              <label for="user_avatar" class="avatar-upload-overlay">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </label>
+              
+              <%= f.file_field :avatar, class: "hidden", accept: "image/png,image/jpeg,image/jpg",
+                                        onchange: "previewAvatar(this)" %>
+            </div>
+            <div>
+              <p class="text-gray-400"><%= current_user.username %></p>
+              <p class="text-sm text-gray-500">Click the avatar to change your profile picture</p>
+            </div>
           </div>
-          <div>
-            <button class="text-yellow-500 mb-1 hover:underline">Change</button>
-            <p class="text-gray-400">Abex<span class="text-yellow-500">example</span></p>
+          
+          <div class="mb-4">
+            <%= f.label :username, class: "block text-gray-300 mb-2" %>
+            <%= f.text_field :username, class: "w-full bg-gray-800 border border-gray-700 rounded p-2 text-white" %>
           </div>
-        </div>
-        
-        <div class="mb-4">
-          <label class="block text-gray-300 mb-2">Name</label>
-          <input type="text" value="E>say example" class="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white">
-        </div>
-        
-        <div class="mb-4">
-          <label class="block text-gray-300 mb-2">Bio</label>
-          <input type="text" value="Email/scorse enthusisast" class="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white">
-        </div>
-        
-        <button class="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-6 rounded">
-          Save
-        </button>
+          
+          <div class="mb-4">
+            <%= f.label :name, class: "block text-gray-300 mb-2" %>
+            <%= f.text_field :name, class: "w-full bg-gray-800 border border-gray-700 rounded p-2 text-white" %>
+          </div>
+          
+          <div class="mb-4">
+            <%= f.label :bio, class: "block text-gray-300 mb-2" %>
+            <%= f.text_area :bio, class: "w-full bg-gray-800 border border-gray-700 rounded p-2 text-white", rows: 3 %>
+          </div>
+          
+          <div class="mb-4">
+            <%= f.label :location, class: "block text-gray-300 mb-2" %>
+            <%= f.text_field :location, class: "w-full bg-gray-800 border border-gray-700 rounded p-2 text-white" %>
+          </div>
+          
+          <div class="mb-4">
+            <%= f.label :website, class: "block text-gray-300 mb-2" %>
+            <%= f.url_field :website, class: "w-full bg-gray-800 border border-gray-700 rounded p-2 text-white" %>
+          </div>
+          
+          <%= f.submit "Save Profile", class: "bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-6 rounded cursor-pointer" %>
+        <% end %>
       </div>
       
      
@@ -40,22 +90,28 @@
       <div class="bg-gray-900 rounded-lg p-6">
         <h2 class="text-xl font-bold mb-4">Security</h2>
         
-        <div class="mb-4">
-          <label class="block text-gray-300 mb-2">Current password</label>
-          <input type="password" class="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white">
-        </div>
+        <%= form_with model: current_user, url: update_password_path, method: :patch do |f| %>
+          <div class="mb-4">
+            <%= f.label :current_password, class: "block text-gray-300 mb-2" %>
+            <%= f.password_field :current_password, class: "w-full bg-gray-800 border border-gray-700 rounded p-2 text-white", required: true %>
+          </div>
+          
+          <div class="mb-4">
+            <%= f.label :password, "New password", class: "block text-gray-300 mb-2" %>
+            <%= f.password_field :password, class: "w-full bg-gray-800 border border-gray-700 rounded p-2 text-white", minlength: 6, required: true %>
+          </div>
+          
+          <div class="mb-6">
+            <%= f.label :password_confirmation, "Confirm new password", class: "block text-gray-300 mb-2" %>
+            <%= f.password_field :password_confirmation, class: "w-full bg-gray-800 border border-gray-700 rounded p-2 text-white", minlength: 6, required: true %>
+          </div>
+          
+          <div class="flex items-center mb-6">
+            <%= f.submit "Update Password", class: "bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-6 rounded cursor-pointer" %>
+          </div>
+        <% end %>
         
-        <div class="mb-4">
-          <label class="block text-gray-300 mb-2">New password</label>
-          <input type="password" class="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white">
-        </div>
-        
-        <div class="mb-6">
-          <label class="block text-gray-300 mb-2">Confirm new password</label>
-          <input type="password" class="w-full bg-gray-800 border border-gray-700 rounded p-2 text-white">
-        </div>
-        
-        <div class="flex justify-between items-center">
+        <div class="flex justify-between items-center border-t border-gray-800 pt-6 mt-6">
           <span>Two-factor authentication</span>
           <label class="relative inline-flex items-center cursor-pointer">
             <input type="checkbox" checked class="sr-only peer">
@@ -79,7 +135,9 @@
             <div class="flex items-center">
               <span class="text-gray-400 mr-2">ssh-rsa AAAAaak···</span>
               <button class="text-gray-400 hover:text-white">
-                Ac
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
           </div>
@@ -89,7 +147,9 @@
             <div class="flex items-center">
               <span class="text-gray-400 mr-2">ssh-esc6576 AAAA···</span>
               <button class="text-gray-400 hover:text-white">
-                Ac
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
           </div>
@@ -111,13 +171,35 @@
         
         <div class="flex justify-between items-center">
           <span>Payment Method</span>
+          <span class="text-gray-400">•••• •••• •••• 4242</span>
         </div>
       </div>
     </div>
     
     <!-- Copyright info -->
     <div class="text-gray-500 text-sm text-right pt-4 pb-8">
-      © 2025 GitForge. All rights reserved.
+      © <%= Time.now.year %> GitForge. All rights reserved.
     </div>
   </div>
 </div>
+
+<script>
+  function previewAvatar(input) {
+    const previewElement = document.getElementById('avatar-preview');
+    previewElement.innerHTML = '';
+    
+    const file = input.files[0];
+    if (file) {
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.classList.add('w-full', 'h-full', 'object-cover');
+        previewElement.appendChild(img);
+      };
+      
+      reader.readAsDataURL(file);
+    }
+  }
+</script>

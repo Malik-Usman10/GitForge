@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Get repository ID from the path
+REPO_PATH=$(pwd)
+REPO_ID=$(basename $(dirname $REPO_PATH))
+
+# Rails application path (adjust as needed)
+RAILS_APP_PATH=$(dirname $(dirname $(dirname $(dirname $REPO_PATH))))
+
+# Log the hook execution
+echo "Post-receive hook triggered for repository ID: $REPO_ID" >> $RAILS_APP_PATH/log/git_hooks.log
+echo "Repository path: $REPO_PATH" >> $RAILS_APP_PATH/log/git_hooks.log
+echo "Rails app path: $RAILS_APP_PATH" >> $RAILS_APP_PATH/log/git_hooks.log
+
+# Run the sync task in the background
+cd $RAILS_APP_PATH
+RAILS_ENV=development bin/rails runner "Repository.find($REPO_ID).try(:sync)" >> $RAILS_APP_PATH/log/git_hooks.log 2>&1 &
+
+exit 0 

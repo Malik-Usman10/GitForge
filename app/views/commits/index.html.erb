@@ -69,7 +69,10 @@
           <% end %>
         </div>
         
-        <% # Add pagination here if using Kaminari or will_paginate %>
+        <!-- Pagination -->
+        <div class="p-4 bg-gray-800 border-t border-gray-700">
+          <%= paginate @commits, theme: "tailwind" %>
+        </div>
         
       <% else %>
         <div class="p-8 text-center">
