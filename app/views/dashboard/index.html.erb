@@ -107,10 +107,27 @@
                         <span class="font-medium"><%= activity[:user].username %></span> created repository 
                         <%= link_to activity[:repository].name, main_app.user_repository_path(activity[:user].username, activity[:repository].slug), class: "text-yellow-500 hover:underline" %>
                       <% when 'issue' %>
-                        <span class="font-medium"><%= activity[:user].username %></span> opened issue 
-                        <%= link_to "##{activity[:item].id}", user_repository_issue_path(username: activity[:user].username, repository_name: activity[:repository].slug, id: activity[:item].id), class: "text-yellow-500 hover:underline" %>: 
-                        <span class="font-medium">"<%= activity[:item].title %>"</span> in
-                        <%= link_to activity[:repository].name, main_app.user_repository_path(activity[:user].username, activity[:repository].slug), class: "text-yellow-500 hover:underline" %>
+                        <% if activity[:action] == 'opened' %>
+                          <span class="font-medium"><%= activity[:user].username %></span> opened issue 
+                          <%= link_to "##{activity[:item].id}", user_repository_issue_path(username: activity[:user].username, repository_name: activity[:repository].slug, id: activity[:item].id), class: "text-yellow-500 hover:underline" %>: 
+                          <span class="font-medium">"<%= activity[:item].title %>"</span> in
+                          <%= link_to activity[:repository].name, main_app.user_repository_path(activity[:user].username, activity[:repository].slug), class: "text-yellow-500 hover:underline" %>
+                        <% elsif activity[:action] == 'reopened' %>
+                          <span class="font-medium"><%= activity[:user].username %></span> reopened issue 
+                          <%= link_to "##{activity[:item].id}", user_repository_issue_path(username: activity[:user].username, repository_name: activity[:repository].slug, id: activity[:item].id), class: "text-yellow-500 hover:underline" %>: 
+                          <span class="font-medium">"<%= activity[:item].title %>"</span> in
+                          <%= link_to activity[:repository].name, main_app.user_repository_path(activity[:user].username, activity[:repository].slug), class: "text-yellow-500 hover:underline" %>
+                        <% else %>
+                          <span class="font-medium"><%= activity[:user].username %></span> closed issue 
+                          <%= link_to "##{activity[:item].id}", user_repository_issue_path(username: activity[:user].username, repository_name: activity[:repository].slug, id: activity[:item].id), class: "text-yellow-500 hover:underline" %>: 
+                          <span class="font-medium">"<%= activity[:item].title %>"</span> in
+                          <%= link_to activity[:repository].name, main_app.user_repository_path(activity[:user].username, activity[:repository].slug), class: "text-yellow-500 hover:underline" %>
+                          <% if activity[:close_reason].present? %>
+                            <div class="mt-1 text-xs text-gray-300 bg-gray-700 p-2 rounded">
+                              <span class="text-red-400 font-medium">Close reason:</span> <%= activity[:close_reason] %>
+                            </div>
+                          <% end %>
+                        <% end %>
                       <% when 'pull_request' %>
                         <span class="font-medium"><%= activity[:user].username %></span> opened pull request 
                         <%= link_to "##{activity[:item].id}", user_repository_pull_request_path(username: activity[:user].username, repository_name: activity[:repository].slug, id: activity[:item].id), class: "text-yellow-500 hover:underline" %>: 

@@ -78,7 +78,7 @@ class IssuesController < ApplicationController
     Rails.logger.info "Close reason: #{params[:close_reason].inspect}"
     
     @issue.close_reason = params[:close_reason]
-    @issue.closed!
+    @issue.update(status: :closed, updated_at: Time.current) # Explicitly update timestamp
     
     if params[:username] && params[:repository_name]
       redirect_to user_repository_issue_path(username: params[:username], repository_name: params[:repository_name], id: @issue.id), notice: 'Issue was closed.'
@@ -88,7 +88,9 @@ class IssuesController < ApplicationController
   end
   
   def reopen
-    @issue.open!
+    # Clear close reason when reopening
+    @issue.close_reason = nil
+    @issue.update(status: :open, updated_at: Time.current) # Explicitly update timestamp
     
     if params[:username] && params[:repository_name]
       redirect_to user_repository_issue_path(username: params[:username], repository_name: params[:repository_name], id: @issue.id), notice: 'Issue was reopened.'

@@ -40,16 +40,35 @@ class DashboardController < ApplicationController
       }
     end
     
-    issues = Issue.where(user: current_user).order(created_at: :desc).limit(5).map do |issue|
+    # Get opened issues
+    opened_issues = Issue.where(user: current_user, status: :open).order(created_at: :desc).limit(5).map do |issue|
+      # Check if this is a newly created issue or a reopened one by comparing timestamps
+      action = (issue.created_at.to_i == issue.updated_at.to_i) ? 'opened' : 'reopened'
       {
         type: 'issue',
         user: current_user,
         repository: issue.repository,
-        action: 'opened',
-        created_at: issue.created_at,
+        action: action,
+        created_at: action == 'opened' ? issue.created_at : issue.updated_at,
         item: issue
       }
     end
+    
+    # Get closed issues - use updated_at as the timestamp for when they were closed
+    closed_issues = Issue.where(user: current_user, status: :closed).order(updated_at: :desc).limit(5).map do |issue|
+      {
+        type: 'issue',
+        user: current_user,
+        repository: issue.repository,
+        action: 'closed',
+        created_at: issue.updated_at, # Use updated_at as our timestamp for the closure
+        item: issue,
+        close_reason: issue.close_reason
+      }
+    end
+    
+    # Combine opened and closed issues
+    issues = opened_issues + closed_issues
     
     pull_requests = PullRequest.where(user: current_user).order(created_at: :desc).limit(5).map do |pr|
       {
