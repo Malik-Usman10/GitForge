@@ -42,7 +42,13 @@ gem "thruster", require: false
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
-  gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
+  gem "debug", platforms: %i[ mri mingw x64_mingw ]
+
+  # Add letter_opener for email previews in development
+  gem "letter_opener", group: :development
+
+  # Add letter_opener_web for a web interface to emails in development
+  gem "letter_opener_web", group: :development
 
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
@@ -63,10 +69,24 @@ gem "tailwindcss-rails", "~> 4.2"
 # Gems for Authentication
 gem "devise"
 
-gem "friendly_id"
+gem "friendly_id", "~> 5.4.0"
 
 gem "redcarpet"
 
 gem "rugged"
 
 gem "kaminari"
+
+gem "inline_svg"
+
+gem "jquery-rails"
+
+gem "rubocop", require: false
+
+gem "sassc-rails"
+
+gem "sprockets-rails"
+
+gem "view_component"
+
+gem "email_validator"

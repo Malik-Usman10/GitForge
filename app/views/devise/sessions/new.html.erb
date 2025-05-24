@@ -40,6 +40,11 @@
           <%= f.submit "Sign In", class: "w-full py-2 bg-yellow-500 hover:bg-yellow-600 rounded text-black font-semibold transition" %>
         </div>
       <% end %>
+      
+      <div class="text-xs text-gray-400 mt-4 text-center">
+        <p>Haven't received confirmation instructions?</p>
+        <%= link_to "Resend confirmation email", new_confirmation_path(resource_name), class: "text-yellow-500 hover:underline" %>
+      </div>
     </div>
   </div>
 </div>

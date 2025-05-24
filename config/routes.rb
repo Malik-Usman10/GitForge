@@ -1,7 +1,14 @@
 Rails.application.routes.draw do
-  devise_for :users
+  devise_for :users, controllers: {
+    confirmations: 'confirmations'
+  }
 
   get "up" => "rails/health#show", as: :rails_health_check
+
+  # Letter opener web interface for development environment
+  if Rails.env.development?
+    mount LetterOpenerWeb::Engine, at: "/letter_opener"
+  end
 
   authenticated :user do
     root to: 'dashboard#index', as: :dashboard

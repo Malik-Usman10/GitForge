@@ -24,8 +24,8 @@
     </a>
     
     <!-- User Profile Dropdown -->
-    <div class="relative" data-controller="dropdown">
-      <button data-action="click->dropdown#toggle" class="flex items-center focus:outline-none cursor-pointer">
+    <div class="relative dropdown-container">
+      <button id="profile-dropdown-button" class="flex items-center focus:outline-none cursor-pointer">
         <% if current_user.avatar.attached? %>
           <%= image_tag current_user.avatar, alt: "User Profile", class: "w-8 h-8 rounded-full" %>
         <% else %>
@@ -36,7 +36,7 @@
       </button>
       
       <!-- Dropdown Menu -->
-      <div data-dropdown-target="menu" class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1 z-50 hidden">
+      <div id="profile-dropdown-menu" class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1 z-50 hidden">
         <div class="px-4 py-2 border-b border-gray-700">
           <p class="text-sm font-medium text-white"><%= current_user.username %></p>
           <p class="text-xs text-gray-400 truncate"><%= current_user.email %></p>
@@ -73,33 +73,53 @@
   </div>
 </header>
 
+<style>
+  /* Add this style to make dropdown work with both hover and click */
+  .dropdown-container:hover #profile-dropdown-menu {
+    display: block;
+  }
+</style>
+
 <!-- JavaScript for dropdown functionality -->
 <script>
-  document.addEventListener('turbo:load', function() {
-    // Initialize dropdown functionality
-    const dropdownController = {
-      init() {
-        document.querySelectorAll('[data-controller="dropdown"]').forEach(dropdown => {
-          const button = dropdown.querySelector('[data-action="click->dropdown#toggle"]');
-          const menu = dropdown.querySelector('[data-dropdown-target="menu"]');
-          
-          if (button && menu) {
-            button.addEventListener('click', (event) => {
-              event.stopPropagation();
-              menu.classList.toggle('hidden');
-            });
-            
-            // Close dropdown when clicking outside
-            document.addEventListener('click', (event) => {
-              if (!dropdown.contains(event.target)) {
-                menu.classList.add('hidden');
-              }
-            });
-          }
-        });
-      }
-    };
+  document.addEventListener('DOMContentLoaded', function() {
+    const dropdownButton = document.getElementById('profile-dropdown-button');
+    const dropdownMenu = document.getElementById('profile-dropdown-menu');
     
-    dropdownController.init();
+    if (dropdownButton && dropdownMenu) {
+      // Handle click events
+      dropdownButton.addEventListener('click', function(e) {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle('hidden');
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!dropdownMenu.contains(e.target) && e.target !== dropdownButton) {
+          dropdownMenu.classList.add('hidden');
+        }
+      });
+    }
+  });
+  
+  // Also support Turbo navigation events
+  document.addEventListener('turbo:load', function() {
+    const dropdownButton = document.getElementById('profile-dropdown-button');
+    const dropdownMenu = document.getElementById('profile-dropdown-menu');
+    
+    if (dropdownButton && dropdownMenu) {
+      // Handle click events
+      dropdownButton.addEventListener('click', function(e) {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle('hidden');
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!dropdownMenu.contains(e.target) && e.target !== dropdownButton) {
+          dropdownMenu.classList.add('hidden');
+        }
+      });
+    }
   });
 </script>
