@@ -17,6 +17,11 @@ class User < ApplicationRecord
   # Uploader (e.g., for ActiveStorage)
   has_one_attached :avatar
 
+  # Additional profile attributes
+  # Note: real_name, bio already exist in the database
+  # location, website were added in migration
+  alias_attribute :name, :real_name
+
   # Callback to generate username from email
   before_validation :generate_username, on: :create
 

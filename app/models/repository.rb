@@ -4,6 +4,9 @@ class Repository < ApplicationRecord
 
   belongs_to :user
   has_many :repository_files, dependent: :destroy
+  has_many :issues, dependent: :destroy
+  has_many :pull_requests, dependent: :destroy
+  has_many :commits, dependent: :destroy
 
   enum :visibility, { is_private: 0, is_public: 1 }
 
@@ -38,5 +41,11 @@ class Repository < ApplicationRecord
 
   def root_files
     repository_files.root_files
+  end
+
+  def url
+    # This would be the URL to the repository on the site
+    # For now, we'll just return a placeholder
+    "/#{user.username}/#{slug}"
   end
 end

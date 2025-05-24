@@ -8,8 +8,6 @@ Rails.application.routes.draw do
 
     namespace :dashboard do
       get '/', to: 'dashboard#index'
-      resources :issues
-      resources :pull_request
       get 'starred'
       get 'explore'
       get 'settings'
@@ -22,6 +20,26 @@ Rails.application.routes.draw do
         post :sync
       end
     end
+    
+    # Issues
+    resources :issues do
+      member do
+        patch :close
+        patch :reopen
+      end
+    end
+    
+    # Pull Requests
+    resources :pull_requests do
+      member do
+        patch :merge
+        patch :close
+        patch :reopen
+      end
+    end
+    
+    # Commits
+    resources :commits, only: [:index, :show]
   end
 
   unauthenticated do

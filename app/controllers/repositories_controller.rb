@@ -8,9 +8,17 @@ class RepositoriesController < ApplicationController
   
     rescue_from ActiveRecord::RecordNotFound do |exception|
       if exception.model == "Repository"
-        redirect_to repositories_path, alert: "Repository not found."
+        if user_signed_in?
+          redirect_to main_app.repositories_path, alert: "Repository not found."
+        else
+          redirect_to main_app.unauthenticated_root_path, alert: "Repository not found."
+        end
       else
-        redirect_to root_path, alert: "Resource not found."
+        if user_signed_in?
+          redirect_to main_app.dashboard_path, alert: "Resource not found."
+        else
+          redirect_to main_app.unauthenticated_root_path, alert: "Resource not found."
+        end
       end
     end
 
@@ -19,7 +27,8 @@ class RepositoriesController < ApplicationController
     end
   
     def show
-      if @repository.is_private? && current_user != @user
+      # Check if repository is private and user is not the owner
+      if @repository.is_private? && (!user_signed_in? || current_user != @user)
         render :private, status: :forbidden
         return
       end
@@ -60,7 +69,7 @@ class RepositoriesController < ApplicationController
       if @repository.save
         # Initialize git repository
         initialize_git_repo
-        redirect_to user_repository_path(username: current_user.username, repository_name: @repository.slug), notice: "Repository created successfully."
+        redirect_to main_app.user_repository_path(username: current_user.username, repository_name: @repository.slug), notice: "Repository created successfully."
       else
         render :new, status: :unprocessable_entity
       end
@@ -71,7 +80,7 @@ class RepositoriesController < ApplicationController
   
     def update
       if @repository.update(repository_params)
-        redirect_to user_repository_path(username: current_user.username, repository_name: @repository.slug), notice: "Repository updated."
+        redirect_to main_app.user_repository_path(username: current_user.username, repository_name: @repository.slug), notice: "Repository updated."
       else
         render :edit, status: :unprocessable_entity
       end
@@ -89,14 +98,14 @@ class RepositoriesController < ApplicationController
         @repository.destroy
         
         # Redirect to user's repositories page
-        redirect_to user_repositories_path(username: username), notice: "Repository deleted successfully."
+        redirect_to main_app.user_repositories_path(username: username), notice: "Repository deleted successfully."
       rescue => e
         Rails.logger.error "Error deleting repository: #{e.message}"
         # On error, still try to redirect to user's repositories if we have the username
         if username.present?
-          redirect_to user_repositories_path(username: username), alert: "Failed to delete repository. Please try again."
+          redirect_to main_app.user_repositories_path(username: username), alert: "Failed to delete repository. Please try again."
         else
-          redirect_to repositories_path, alert: "Failed to delete repository. Please try again."
+          redirect_to main_app.repositories_path, alert: "Failed to delete repository. Please try again."
         end
       end
     end
@@ -106,14 +115,14 @@ class RepositoriesController < ApplicationController
       Rails.logger.debug "Repository: #{@repository.inspect}"
       
       if @repository.nil?
-        redirect_to repositories_path, alert: "Repository not found."
+        redirect_to main_app.repositories_path, alert: "Repository not found."
         return
       end
 
       if GitSyncService.new(@repository).sync
-        redirect_to user_repository_path(username: current_user.username, repository_name: @repository.slug), notice: "Repository synchronized successfully."
+        redirect_to main_app.user_repository_path(username: current_user.username, repository_name: @repository.slug), notice: "Repository synchronized successfully."
       else
-        redirect_to user_repository_path(username: current_user.username, repository_name: @repository.slug), alert: "Failed to synchronize repository."
+        redirect_to main_app.user_repository_path(username: current_user.username, repository_name: @repository.slug), alert: "Failed to synchronize repository."
       end
     end
   
@@ -129,9 +138,17 @@ class RepositoriesController < ApplicationController
         @repository = @user.repositories.friendly.find(params[:repository_name])
       rescue ActiveRecord::RecordNotFound => e
         if e.model == "User"
-          redirect_to root_path, alert: "User not found."
+          if user_signed_in?
+            redirect_to main_app.dashboard_path, alert: "User not found."
+          else
+            redirect_to main_app.unauthenticated_root_path, alert: "User not found."
+          end
         else
-          redirect_to repositories_path, alert: "Repository not found."
+          if user_signed_in?
+            redirect_to main_app.repositories_path, alert: "Repository not found."
+          else
+            redirect_to main_app.unauthenticated_root_path, alert: "Repository not found."
+          end
         end
       end
     end
@@ -148,20 +165,28 @@ class RepositoriesController < ApplicationController
         end
       rescue ActiveRecord::RecordNotFound => e
         if e.model == "User"
-          redirect_to root_path, alert: "User not found."
+          if user_signed_in?
+            redirect_to main_app.dashboard_path, alert: "User not found."
+          else
+            redirect_to main_app.unauthenticated_root_path, alert: "User not found."
+          end
         else
-          redirect_to repositories_path, alert: "Repository not found."
+          if user_signed_in?
+            redirect_to main_app.repositories_path, alert: "Repository not found."
+          else
+            redirect_to main_app.unauthenticated_root_path, alert: "Repository not found."
+          end
         end
       end
     end
   
     def authenticate_owner!
-      redirect_to root_path, alert: "Unauthorized access." unless current_user == @repository.user
+      redirect_to main_app.unauthenticated_root_path, alert: "Unauthorized access." unless current_user == @repository.user
     end
   
     def determine_layout
       if action_name == 'show' || action_name == 'private'
-        user_signed_in? ? 'dashboard' : 'application'
+        user_signed_in? ? 'dashboard' : 'profile'
       else
         'dashboard'
       end

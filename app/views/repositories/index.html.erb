@@ -34,9 +34,9 @@
               <p class="text-gray-400 text-sm mt-1"><%= repo.description.presence || "No description provided." %></p>
             </div>
             <div>
-              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-900 text-blue-300">
-                <%= repo.visibility.capitalize %>
-              </span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium <%= repo.visibility == "is_private" ? "bg-red-900 text-red-300" : "bg-blue-900 text-blue-300" %>">
+                      <%= repo.visibility == "is_private" ? "Private" : "Public" %>
+                    </span>
             </div>
           </div>
 

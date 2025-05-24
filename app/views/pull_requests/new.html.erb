@@ -1,0 +1,68 @@
+<div class="bg-gray-950 min-h-screen text-white p-6">
+  <div class="max-w-4xl mx-auto">
+    <!-- Breadcrumb -->
+    <div class="flex items-center text-sm text-gray-400 mb-4">
+      <%= link_to "Pull Requests", pull_requests_path, class: "hover:text-white" %>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+      <span>New Pull Request</span>
+    </div>
+    
+    <div class="bg-gray-800 rounded-lg p-6">
+      <h1 class="text-2xl font-bold mb-6">Create New Pull Request</h1>
+      
+      <%= form_with(model: @pull_request, local: true) do |form| %>
+        <% if @pull_request.errors.any? %>
+          <div class="bg-red-900 text-red-100 p-4 rounded-md mb-6">
+            <h2 class="text-lg font-medium mb-2">
+              <%= pluralize(@pull_request.errors.count, "error") %> prohibited this pull request from being saved:
+            </h2>
+            <ul class="list-disc list-inside">
+              <% @pull_request.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+        
+        <!-- Hidden field for status -->
+        <%= form.hidden_field :status, value: "open" %>
+        
+        <div class="mb-6">
+          <%= form.label :repository_id, "Repository", class: "block text-sm font-medium text-gray-400 mb-2" %>
+          <%= form.collection_select :repository_id, @repositories, :id, :name,
+                                     { prompt: "Select a repository" },
+                                     { class: "w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500" } %>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <%= form.label :source_branch, "Source Branch", class: "block text-sm font-medium text-gray-400 mb-2" %>
+            <%= form.text_field :source_branch, class: "w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500", placeholder: "feature-branch" %>
+          </div>
+          
+          <div>
+            <%= form.label :target_branch, "Target Branch", class: "block text-sm font-medium text-gray-400 mb-2" %>
+            <%= form.text_field :target_branch, class: "w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500", placeholder: "main" %>
+          </div>
+        </div>
+        
+        <div class="mb-6">
+          <%= form.label :title, class: "block text-sm font-medium text-gray-400 mb-2" %>
+          <%= form.text_field :title, class: "w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500", placeholder: "Pull request title" %>
+        </div>
+        
+        <div class="mb-6">
+          <%= form.label :description, class: "block text-sm font-medium text-gray-400 mb-2" %>
+          <%= form.text_area :description, rows: 8, class: "w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500", placeholder: "Describe the changes in this pull request..." %>
+        </div>
+        
+        <div class="flex justify-between items-center">
+          <%= link_to "Cancel", pull_requests_path, class: "text-gray-400 hover:text-white" %>
+          <%= form.submit "Create Pull Request", class: "bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-md cursor-pointer" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div> 

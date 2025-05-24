@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_20_211943) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_24_135731) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_20_211943) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "commits", force: :cascade do |t|
+    t.string "sha"
+    t.text "message"
+    t.bigint "repository_id", null: false
+    t.bigint "user_id", null: false
+    t.text "files_changed"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["repository_id"], name: "index_commits_on_repository_id"
+    t.index ["user_id"], name: "index_commits_on_user_id"
   end
 
   create_table "issues", force: :cascade do |t|
@@ -113,6 +125,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_20_211943) do
     t.string "real_name"
     t.text "bio"
     t.string "slug"
+    t.string "name"
+    t.string "location"
+    t.string "website"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["slug"], name: "index_users_on_slug", unique: true
@@ -121,6 +136,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_20_211943) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "commits", "repositories"
+  add_foreign_key "commits", "users"
   add_foreign_key "issues", "repositories"
   add_foreign_key "issues", "users"
   add_foreign_key "pull_requests", "repositories"

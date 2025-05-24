@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= @user ? "#{@user.username} - GitForge" : "GitForge" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= favicon_link_tag "favicon/favicon.ico" %>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-gray-950 text-gray-300">
+    <!-- Simple header for unauthenticated users -->
+    <header class="bg-gray-900 text-white py-3 px-4 flex items-center justify-between border-b border-gray-700">
+      <div class="flex items-center">
+        <%= link_to main_app.unauthenticated_root_path, class: "flex items-center" do %>
+          <%= image_tag "gitForgeLogo.svg", alt: "GitForge Logo", class: "w-8 h-8 mr-2" %>
+          <span class="text-xl font-bold">GitForge</span>
+        <% end %>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <%= link_to "Sign In", main_app.new_user_session_path, class: "text-gray-300 hover:text-white" %>
+        <%= link_to "Sign Up", main_app.new_user_registration_path, class: "bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+      </div>
+    </header>
+
+    <main>
+      <%= yield %>
+    </main>
+  </body>
+</html> 

@@ -1,0 +1,106 @@
+<div class="bg-gray-950 min-h-screen text-white p-6">
+  <div class="max-w-6xl mx-auto">
+    <!-- Breadcrumb -->
+    <div class="flex items-center text-sm text-gray-400 mb-4">
+      <%= link_to "Commits", commits_path, class: "hover:text-white" %>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+      <span class="truncate"><%= @commit.short_sha %></span>
+    </div>
+    
+    <!-- Commit Header -->
+    <div class="bg-gray-800 rounded-t-lg p-6">
+      <div class="flex items-start justify-between">
+        <div>
+          <h1 class="text-2xl font-medium">
+            <%= @commit.message.split("\n").first %>
+          </h1>
+          
+          <div class="flex items-center mt-4 text-sm text-gray-400">
+            <span class="font-mono bg-gray-700 px-2 py-1 rounded text-yellow-500">
+              <%= @commit.sha %>
+            </span>
+            
+            <span class="mx-2">•</span>
+            
+            <span>
+              Committed <%= time_ago_in_words(@commit.created_at) %> ago
+            </span>
+            
+            <% if @commit.user %>
+              <span class="mx-2">•</span>
+              <span>
+                by <%= link_to @commit.user.username, main_app.user_path(@commit.user.username), class: "text-yellow-500 hover:underline" %>
+              </span>
+            <% end %>
+          </div>
+          
+          <div class="mt-2 text-sm">
+            <span class="text-gray-400">Repository: </span>
+            <%= link_to @repository.name, main_app.user_repository_path(@repository.user.username, @repository.slug), class: "text-yellow-500 hover:underline" %>
+          </div>
+        </div>
+        
+        <div>
+          <% if @commit.user&.avatar&.attached? %>
+            <%= image_tag @commit.user.avatar, class: "w-12 h-12 rounded-full" %>
+          <% else %>
+            <div class="w-12 h-12 rounded-full bg-yellow-500 flex items-center justify-center">
+              <span class="text-gray-900 font-bold text-lg"><%= @commit.user&.username&.first&.upcase || "?" %></span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Commit Details -->
+    <div class="bg-gray-800 border-t border-gray-700 p-6">
+      <h2 class="text-lg font-medium mb-4">Commit Message</h2>
+      
+      <div class="bg-gray-700 rounded-lg p-4 whitespace-pre-wrap font-mono text-sm">
+        <%= @commit.message %>
+      </div>
+      
+      <% if @commit.files_changed.present? %>
+        <h2 class="text-lg font-medium mt-6 mb-4">Files Changed</h2>
+        
+        <div class="space-y-4">
+          <% @commit.files_changed.each do |file| %>
+            <div class="bg-gray-700 rounded-lg overflow-hidden">
+              <div class="bg-gray-600 px-4 py-2 font-mono text-sm">
+                <%= file %>
+              </div>
+              
+              <% # Diff would go here in a real implementation %>
+              <div class="p-4 text-sm text-gray-400">
+                <em>Diff view not available in this preview</em>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+    
+    <!-- Actions Footer -->
+    <div class="bg-gray-800 rounded-b-lg border-t border-gray-700 p-6">
+      <div class="flex justify-between">
+        <%= link_to commits_path, class: "text-gray-400 hover:text-white flex items-center" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back to Commits
+        <% end %>
+        
+        <% if @repository %>
+          <%= link_to main_app.user_repository_path(@repository.user.username, @repository.slug), class: "text-gray-400 hover:text-white flex items-center" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+            </svg>
+            View Repository
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div> 

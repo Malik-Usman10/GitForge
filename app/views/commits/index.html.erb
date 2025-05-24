@@ -1,0 +1,91 @@
+<div class="bg-gray-950 min-h-screen text-white p-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">
+        <% if @repository %>
+          Commits for <%= @repository.name %>
+        <% else %>
+          All Commits
+        <% end %>
+      </h1>
+      
+      <% if @repository %>
+        <%= link_to main_app.user_repository_path(@repository.user.username, @repository.slug), class: "text-gray-400 hover:text-white flex items-center" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back to Repository
+        <% end %>
+      <% end %>
+    </div>
+    
+    <div class="bg-gray-800 rounded-lg overflow-hidden">
+      <% if @commits.any? %>
+        <div class="divide-y divide-gray-700">
+          <% @commits.each do |commit| %>
+            <div class="p-4 hover:bg-gray-700">
+              <div class="flex items-start">
+                <% if commit.user&.avatar&.attached? %>
+                  <%= image_tag commit.user.avatar, class: "w-10 h-10 rounded-full mr-3" %>
+                <% else %>
+                  <div class="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center mr-3">
+                    <span class="text-gray-900 font-bold"><%= commit.user&.username&.first&.upcase || "?" %></span>
+                  </div>
+                <% end %>
+                
+                <div class="flex-1">
+                  <div class="flex items-center justify-between">
+                    <%= link_to commit_path(commit), class: "text-lg font-medium text-white hover:underline truncate max-w-2xl" do %>
+                      <%= commit.message.split("\n").first %>
+                    <% end %>
+                    
+                    <span class="text-xs text-gray-400 ml-2 whitespace-nowrap">
+                      <%= time_ago_in_words(commit.created_at) %> ago
+                    </span>
+                  </div>
+                  
+                  <div class="flex items-center mt-1 text-sm">
+                    <div class="flex items-center text-gray-400">
+                      <span class="font-mono bg-gray-700 px-2 py-0.5 rounded text-yellow-500">
+                        <%= commit.short_sha %>
+                      </span>
+                      
+                      <% if commit.user %>
+                        <span class="ml-3">
+                          by <%= link_to commit.user.username, main_app.user_path(commit.user.username), class: "text-yellow-500 hover:underline" %>
+                        </span>
+                      <% end %>
+                    </div>
+                    
+                    <% if commit.repository %>
+                      <span class="ml-3 text-gray-500">
+                        in <%= link_to commit.repository.name, main_app.user_repository_path(commit.repository.user.username, commit.repository.slug), class: "text-yellow-500 hover:underline" %>
+                      </span>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        
+        <% # Add pagination here if using Kaminari or will_paginate %>
+        
+      <% else %>
+        <div class="p-8 text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h3 class="text-lg font-medium text-gray-300 mb-2">No commits found</h3>
+          <p class="text-gray-500 mb-4">
+            <% if @repository %>
+              There are no commits in this repository yet.
+            <% else %>
+              There are no commits in any of your repositories yet.
+            <% end %>
+          </p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div> 

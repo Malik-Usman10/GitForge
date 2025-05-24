@@ -14,7 +14,14 @@
       </p>
       
       <div class="mt-8">
-        <%= link_to "Go to Dashboard", dashboard_path, class: "inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-black bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500" %>
+        <% if user_signed_in? %>
+          <%= link_to "Go to Dashboard", main_app.dashboard_path, class: "inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-black bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500" %>
+        <% else %>
+          <div class="space-x-4">
+            <%= link_to "Sign In", main_app.new_user_session_path, class: "inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-black bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500" %>
+            <%= link_to "Go Back", :back, class: "inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gray-700 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500" %>
+          </div>
+        <% end %>
       </div>
     </div>
   </div>
