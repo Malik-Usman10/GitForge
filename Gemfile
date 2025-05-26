@@ -69,7 +69,7 @@ gem "tailwindcss-rails", "~> 4.2"
 # Gems for Authentication
 gem "devise"
 
-gem "friendly_id", "~> 5.4.0"
+gem "friendly_id", "~> 5.5.1"
 
 gem "redcarpet"
 
